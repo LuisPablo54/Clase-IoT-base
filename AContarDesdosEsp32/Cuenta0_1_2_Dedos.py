@@ -102,7 +102,8 @@ while True:
     #Agregamos un delay para que no se publique el mensaje muchas veces
     
     # Mostrar la imagen con las manos detectadas
-    cv2.imshow('Cuenta dedos ESP32cam', image)
+    
+    cv2.imshow('Cuenta dedos ESP32cam', cv2.resize(image, (640, 480)))
     if cv2.waitKey(15) & 0xFF == 27:  # Presiona 'ESC' para salir
         break
     cv2.waitKey(1000)
