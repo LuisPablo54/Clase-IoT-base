@@ -15,28 +15,19 @@ const char* mqtt_server = "4d58dc4d4da64daca6f0003289196edb.s1.eu.hivemq.cloud";
 const char* mqtt_username = "MAMALU";  // Broker usuario
 const char* mqtt_password = "Cont54%jl03#";      // Broker contraseña
 const int mqtt_port = 8883;
-const char* mqtt_topic = "led/control"; 
 
-//---------------------------SENSORES PUERTOS ------------------------------
-// Definir el pin y modelo del sensor DHT
-const byte DHTPIN = 13;  
-const byte LLUVIA_PIN = 34; // Sensor de lluvia
-const byte SONIDO_PIN = 35; // Sensor de sonido
-const byte ledPin1 = 26;    // LED
-const byte AIRE_PIN = 32;    // LED
+const char* Indice = "Indice";
+const char* Medio = "Medio";
+const char* Anular = "Anular";
+const char* Menique = "Menique";
 
-#define DHTTYPE DHT11  
-DHT dht(DHTPIN, DHTTYPE);
+const byte Led1 = 13;  
+const byte Led2 = 14; 
+const byte Led3 = 27; 
+const byte Led4 = 33;    
 
 WiFiClientSecure espClient;
 PubSubClient client(espClient);
-
-const char* Valor_Temperatura_Topic = "Temperatura";
-const char* Valor_Humedad_Topic = "Humedad";
-const char* Valor_Lluvia_Topic = "Lluvia";
-const char* Valor_Sonido_Topic = "Sonido";
-const char* Valor_AIRE_Topic = "Aire";
-const char* Valor_CAIRE_Topic = "CAire";
 
 static const char *root_ca PROGMEM = R"EOF(
 -----BEGIN CERTIFICATE-----
@@ -73,7 +64,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
 )EOF";
 
 // Función de callback MQTT (para recibir mensajes)
-void callback(char* topic, byte* payload, unsigned int length) {
+void  (char* topic, byte* payload, unsigned int length) {
   String incommingMessage = "";
   for (int i = 0; i < length; i++) {
     incommingMessage += (char)payload[i];
@@ -84,14 +75,40 @@ void callback(char* topic, byte* payload, unsigned int length) {
   Serial.print("]: ");
   Serial.println(incommingMessage);
 
-  // Control del LED en función del mensaje recibido
-  if (incommingMessage == "ON") {
-    digitalWrite(ledPin1, HIGH);  // Encender LED en pin 26
-    Serial.println("LED encendido");
-  } else if (incommingMessage == "OFF") {
-    digitalWrite(ledPin1, LOW);   // Apagar LED en pin 26
-    Serial.println("LED apagado");
+  if (String(topic) == Indice) {
+    if (incommingMessage == "1") {
+      digitalWrite(Led1, HIGH);
+      Serial.println("Indice");
+    } else {
+      digitalWrite(Led1, LOW);
+    }
   }
+  if (String(topic) == Medio) {
+    if (incommingMessage == "1") {
+      digitalWrite(Led2, HIGH);
+      Serial.println("Medio");
+    } else {
+      digitalWrite(Led2, LOW);
+    }
+  }
+  if (String(topic) == Anular) {
+    if (incommingMessage == "1") {
+      digitalWrite(Led3, HIGH);
+      Serial.println("Anular");
+    } else {
+      digitalWrite(Led3, LOW);
+    }
+  }
+  if (String(topic) == Menique) {
+    if (incommingMessage == "1") {
+      digitalWrite(Led4, HIGH);
+      Serial.println("Menique");
+    } else {
+      digitalWrite(Led4, LOW);
+    }
+  }
+
+
 }
 
 // Función de reconexión a MQTT
@@ -102,7 +119,12 @@ void reconnect() {
     clientId += String(random(0xffff), HEX);
     if (client.connect(clientId.c_str(), mqtt_username, mqtt_password)) {
       Serial.println("Conectado al broker MQTT");
-      client.subscribe(mqtt_topic); 
+      
+      client.subscribe(Indice);
+      client.subscribe(Medio);
+      client.subscribe(Anular);
+      client.subscribe(Menique);
+      
     } else {
       Serial.print("Error, rc=");
       Serial.print(client.state());
@@ -113,17 +135,23 @@ void reconnect() {
 }
 
 void setup() {
-  dht.begin();
+  
   delay(2000);  
-
   Serial.begin(9600);
-  pinMode(SONIDO_PIN, INPUT); 
-  pinMode(ledPin1, OUTPUT);
+  pinMode(Led1, OUTPUT);
+  pinMode(Led2, OUTPUT);
+  pinMode(Led3, OUTPUT);
+  pinMode(Led4, OUTPUT);
   Serial.print("\nConectando a ");
   Serial.println(ssid);
 
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
+
+  digitalWrite(Led1, LOW);
+  digitalWrite(Led2, LOW);
+  digitalWrite(Led3, LOW);
+  digitalWrite(Led4, LOW);
 
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
@@ -141,39 +169,8 @@ void loop() {
   if (!client.connected()) {
     reconnect();
   }
+  delay(500);
   client.loop();
-
-  float temperatura = dht.readTemperature();  
-  int humedad = dht.readHumidity();  
-  int valorLluvia = analogRead(LLUVIA_PIN);
-  int valorSonido = analogRead(SONIDO_PIN);
-  int valorAire = analogRead(AIRE_PIN);
-  Serial.println(valorAire);
-  float valorCalidadAire = (valorAire / 4095.0) * 3.3;  
-
-  String estadoLluvia;
-  if (valorLluvia <= 1023) {
-    estadoLluvia = "Aguacero";
-  } else if (valorLluvia <= 2047) {
-    estadoLluvia = "Lluvia moderada";
-  } else if (valorLluvia <= 3071) {
-    estadoLluvia = "Lluvia ligera";
-  } else {
-    estadoLluvia = "Sin Lluvia";
-  }
-
-  Serial.print("Estado de la lluvia: ");
-  Serial.println(estadoLluvia);
-  publishMessage(Valor_Temperatura_Topic, String(temperatura), true);    
-  publishMessage(Valor_Humedad_Topic, String(humedad), true);
-  client.publish(Valor_Lluvia_Topic, estadoLluvia.c_str());
-  client.publish(Valor_Sonido_Topic, String(valorSonido).c_str());
-  client.publish(Valor_AIRE_Topic, String(valorAire).c_str());
-  client.publish(Valor_CAIRE_Topic, String(valorCalidadAire).c_str());
-  delay(2000);
 }
 
-void publishMessage(const char* topic, String payload, boolean retained){
-  if (client.publish(topic, payload.c_str(), retained))
-    Serial.println("Message published [" + String(topic) + "]: " + payload);
-}
+

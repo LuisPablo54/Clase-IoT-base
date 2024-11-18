@@ -7,13 +7,13 @@ import numpy as np
 
 # Inicializa MediaPipe Hands para detectar las posiciones de las manos en las imagenes que captura
 mp_hands = mp.solutions.hands
-hands = mp_hands.Hands()
+hands = mp_hands.Hands(max_num_hands=1) 
 
 # Inicializa MediaPipe Drawing Utilities para dibujar las conexiones de las manos detectadas
 mp_drawing = mp.solutions.drawing_utils
 
 # URL asignada al módulo ESP32-CAM
-url = "http://172.20.10.13/capture"
+url = "http://192.168.1.147/capture"
 
 while True:
     img_resp = urllib.request.urlopen(url)

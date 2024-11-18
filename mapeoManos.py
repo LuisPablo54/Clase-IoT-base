@@ -9,7 +9,7 @@ import mediapipe as mp
 
 # Inicializa MediaPipe Hands para detectar las posiciones de las manos en las imagenes que captura
 mp_hands = mp.solutions.hands
-hands = mp_hands.Hands()
+hands = mp_hands.Hands(max_num_hands=6) 
 
 # Inicializa MediaPipe Drawing Utilities para dibujar las conexiones de las manos detectadas
 mp_drawing = mp.solutions.drawing_utils
@@ -40,9 +40,11 @@ while cap.isOpened():
                 image, hand_landmarks, mp_hands.HAND_CONNECTIONS)
 
     # Muestra la imagen en una ventana que llama Detector de manos y se detiene cuando se presiona la tecla ESC (ASCII 27)
+    image = cv2.resize(image, (0,0), fx=1.5, fy=1.5)
     cv2.imshow('Detector de manos', image)
     if cv2.waitKey(5) & 0xFF == 27:
         break
 # Se libera la cámara y las ventanas de OpenCV cuando se termina el programa
 cap.release()
 cv2.destroyAllWindows()
+
