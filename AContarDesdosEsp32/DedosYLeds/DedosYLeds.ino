@@ -8,8 +8,8 @@
 #include <DHT.h>
 
 //---- WiFi settings
-const char* ssid = "INFINITUM38A4_2.4";
-const char* password = "sY4mX2MZkG";
+const char* ssid = "iPhone Rd";
+const char* password = "internet";
 //---- MQTT Broker settings
 const char* mqtt_server = "4d58dc4d4da64daca6f0003289196edb.s1.eu.hivemq.cloud";   // Cluster url
 const char* mqtt_username = "MAMALU";  // Broker usuario
@@ -64,7 +64,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
 )EOF";
 
 // Función de callback MQTT (para recibir mensajes)
-void  (char* topic, byte* payload, unsigned int length) {
+void  callback(char* topic, byte* payload, unsigned int length) {
   String incommingMessage = "";
   for (int i = 0; i < length; i++) {
     incommingMessage += (char)payload[i];

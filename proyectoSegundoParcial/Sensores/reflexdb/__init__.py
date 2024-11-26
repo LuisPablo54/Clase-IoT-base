@@ -1,0 +1,1 @@
+from .uicrud import uicrud

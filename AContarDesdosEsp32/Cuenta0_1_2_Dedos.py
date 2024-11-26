@@ -38,7 +38,7 @@ hands = mp_hands.Hands(max_num_hands=1)
 mp_drawing = mp.solutions.drawing_utils
 
 # Captura el video desde la URL de la ESP32-CAM. 
-esp32_cam_url = "http://192.168.1.147/capture" 
+esp32_cam_url = "http://172.20.10.13/capture" 
 
 
 def contar_dedos(hand_landmarks):
