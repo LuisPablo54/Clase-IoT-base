@@ -42,36 +42,51 @@ void loop() {
   sensors_event_t a, g, temp;
   mpu.getEvent(&a, &g, &temp);
 
-  // Limpiar todos los LEDs
+  // Apagar todos los LEDs al inicio
   apagarTodos();
 
-  // Evaluar inclinación en X (Este-Oeste) y Y (Norte-Sur)
+  // Evaluar inclinación en X y Y
+  bool ledEncendido = false;
+
+  // Inclinación en el eje Y (Norte/Sur)
   if (a.acceleration.y > 3) {
-    digitalWrite(ledNorte, HIGH); // Inclinación hacia el norte
-    Serial.println("Norte");
-  } else if (a.acceleration.y < -3) {
-    digitalWrite(ledSur, HIGH); // Inclinación hacia el sur
-    Serial.println("Sur");
-  } else if (a.acceleration.x > 3) {
-    digitalWrite(ledEste, HIGH); // Inclinación hacia el este
-    Serial.println("Este");
-  } else if (a.acceleration.x < -3) {
-    digitalWrite(ledOeste, HIGH); // Inclinación hacia el oeste
-    Serial.println("Oeste");
-  } else {
-    digitalWrite(ledCentro, HIGH); // Módulo centrado
-    Serial.println("Centrado");
+    digitalWrite(ledNorte, HIGH); // Enciende LED Norte
+    Serial.print("Norte ");
+    ledEncendido = true;
+  }
+  if (a.acceleration.y < -3) {
+    digitalWrite(ledSur, HIGH); // Enciende LED Sur
+    Serial.print("Sur ");
+    ledEncendido = true;
   }
 
-  // Mostrar valores en el monitor serial (para depuración)
-  Serial.print("X: ");
+  // Inclinación en el eje X (Este/Oeste)
+  if (a.acceleration.x > 3) {
+    digitalWrite(ledEste, HIGH); // Enciende LED Este
+    Serial.print("Este ");
+    ledEncendido = true;
+  }
+  if (a.acceleration.x < -3) {
+    digitalWrite(ledOeste, HIGH); // Enciende LED Oeste
+    Serial.print("Oeste ");
+    ledEncendido = true;
+  }
+
+  // Si no hay inclinación significativa, enciende LED del centro
+  if (!ledEncendido) {
+    digitalWrite(ledCentro, HIGH);
+    Serial.print("Centrado");
+  }
+
+  // Mostrar valores en el Monitor Serial (para depuración)
+  Serial.print(" | X: ");
   Serial.print(a.acceleration.x);
   Serial.print(" | Y: ");
   Serial.print(a.acceleration.y);
   Serial.print(" | Z: ");
   Serial.println(a.acceleration.z);
 
-  delay(300); // Pequeña pausa para evitar parpadeos rápidos
+  delay(300); // Pequeña pausa
 }
 
 void apagarTodos() {
